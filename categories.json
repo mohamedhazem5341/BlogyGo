@@ -1,6 +1,5 @@
 {
   "categories": [
-    "General",
     "Technology",
     "Lifestyle",
     "Anime"
@@ -21,14 +20,6 @@
       "category": "Anime",
       "createdAt": "2025-08-11T10:40:30.597Z",
       "slug": "dasd"
-    },
-    {
-      "id": "1754915761584",
-      "title": "Test Image Topic",
-      "content": "<p>Testing image display:</p><img src=\"/uploads/img-1754914126485-122320802.png\" alt=\"test image\" width=\"400\">",
-      "category": "Technology",
-      "createdAt": "2025-08-11T12:36:01.584Z",
-      "slug": "test-image-topic"
     }
   ]
 }
