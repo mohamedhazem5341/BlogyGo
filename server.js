@@ -7,8 +7,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json({ limit: '50mb' })); // Increase limit for base64 images
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// *** SIZE LIMIT CONFIG: Change these values to modify request size limits ***
+app.use(express.json({ limit: '100mb' })); // JSON payload limit - change '100mb' to increase
+app.use(express.urlencoded({ extended: true, limit: '100mb' })); // Form data limit - change '100mb' to increase
 app.use(express.static('public'));
 app.use('/posts', express.static('posts'));
 
@@ -46,10 +47,11 @@ const storage = multer.diskStorage({
     }
 });
 
+// *** IMAGE UPLOAD SIZE CONFIG: Change fileSize value to modify image upload limits ***
 const upload = multer({ 
     storage: storage,
     limits: {
-        fileSize: 30 * 1024 * 1024 // 30MB limit
+        fileSize: 20 * 1024 * 1024 // *** CHANGE THIS: 20MB per image limit - modify number before * 1024 * 1024 ***
     },
     fileFilter: function (req, file, cb) {
         // Check if file is an image
@@ -127,8 +129,9 @@ app.post('/api/topics', (req, res) => {
             return res.status(400).json({ error: 'Title, content, and category are required' });
         }
 
+        // *** TOPIC CONTENT SIZE CONFIG: Change this value to modify topic content limits ***
         // Validate content size (much smaller now since images are file references)
-        if (content.length > 200000) { // 200KB limit for HTML content
+        if (content.length > 500000) { // *** CHANGE THIS: 500KB limit for HTML content - modify this number ***
             return res.status(400).json({ error: 'Content is too large. Please reduce text content.' });
         }
 

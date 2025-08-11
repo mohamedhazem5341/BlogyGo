@@ -402,9 +402,10 @@
 
                     Validation.required(topicData.category, "Category");
 
+                    // *** CONTENT SIZE CONFIG: Change this value to modify content limits ***
                     // Check for overly large content (now much smaller since images are file references)
-                    if (topicData.content.length > 100000) {
-                        // 100KB limit for HTML content
+                    if (topicData.content.length > 500000) {
+                        // *** CHANGE THIS: 500KB limit for HTML content - modify this number ***
                         throw new Error(
                             "Content is too large. Please reduce text content.",
                         );
