@@ -1,488 +1,554 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - My Blog</title>
-    <link rel="stylesheet" href="/style.css">
-    <!-- TinyMCE CDN -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-    <style>
-        .admin-section {
-            margin-bottom: 3rem;
-        }
-        
-        .admin-section h2 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #3498db;
-        }
-        
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .admin-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .admin-card h3 {
-            color: #34495e;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-label {
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel - My Blog</title>
+        <link rel="stylesheet" href="/style.css" />
+        <!-- TinyMCE CDN -->
+        <script
+            src="https://cdn.tiny.cloud/1/kjhehkmgpau2g64lqa0v9t2uaqca40u21ldon7moakwfeh0g/tinymce/6/tinymce.min.js"
+            referrerpolicy="origin"
+        ></script>
+        <style>
+            .admin-section {
+                margin-bottom: 3rem;
+            }
 
-        @media (max-width: 768px) {
+            .admin-section h2 {
+                color: #2c3e50;
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid #3498db;
+            }
+
             .admin-grid {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+                gap: 2rem;
+                margin-top: 2rem;
             }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
+
             .admin-card {
-                margin: 1rem;
-                padding: 1.5rem;
+                background: white;
+                padding: 2rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1><a href="/">My Blog</a></h1>
-            <ul class="nav-menu">
-                <li><a href="/">Home</a></li>
-                <li><a href="/categories">Categories</a></li>
-                <li><a href="/admin" class="active">Admin</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <div class="container">
-        <section class="admin-section">
-            <div class="section-header">
-                <h1>Admin Panel</h1>
-                <p>Manage your blog content and categories from this dashboard.</p>
+            .admin-card h3 {
+                color: #34495e;
+                margin-bottom: 1.5rem;
+                font-size: 1.5rem;
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin: 2rem 0;
+            }
+
+            .stat-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                text-align: center;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-label {
+                opacity: 0.9;
+                font-size: 0.9rem;
+            }
+
+            @media (max-width: 768px) {
+                .admin-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .form-actions {
+                    flex-direction: column;
+                }
+
+                .admin-card {
+                    margin: 1rem;
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1><a href="/">My Blog</a></h1>
+                <ul class="nav-menu">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/categories">Categories</a></li>
+                    <li><a href="/admin" class="active">Admin</a></li>
+                </ul>
             </div>
+        </nav>
 
-            <!-- Statistics -->
-            <div class="stats-grid" id="stats-container">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-topics">0</div>
-                    <div class="stat-label">Total Topics</div>
+        <div class="container">
+            <section class="admin-section">
+                <div class="section-header">
+                    <h1>Admin Panel</h1>
+                    <p>
+                        Manage your blog content and categories from this
+                        dashboard.
+                    </p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="total-categories">0</div>
-                    <div class="stat-label">Categories</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="recent-topics">0</div>
-                    <div class="stat-label">This Month</div>
-                </div>
-            </div>
 
-            <!-- Admin Forms -->
-            <div class="admin-grid">
-                <!-- Add New Topic Form -->
-                <div class="admin-card">
-                    <h3>Add New Topic</h3>
-                    <form id="topic-form">
-                        <div class="form-group">
-                            <label for="topic-title">Topic Title</label>
-                            <input type="text" id="topic-title" name="title" required maxlength="200" 
-                                   placeholder="Enter topic title">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="topic-category">Category</label>
-                            <select id="topic-category" name="category" required>
-                                <option value="">Select a category</option>
-                                <!-- Categories will be loaded dynamically -->
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="topic-content">Content</label>
-                            <textarea id="topic-content" name="content" required>
+                <!-- Statistics -->
+                <div class="stats-grid" id="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-topics">0</div>
+                        <div class="stat-label">Total Topics</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-categories">0</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="recent-topics">0</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                </div>
+
+                <!-- Admin Forms -->
+                <div class="admin-grid">
+                    <!-- Add New Topic Form -->
+                    <div class="admin-card">
+                        <h3>Add New Topic</h3>
+                        <form id="topic-form">
+                            <div class="form-group">
+                                <label for="topic-title">Topic Title</label>
+                                <input
+                                    type="text"
+                                    id="topic-title"
+                                    name="title"
+                                    required
+                                    maxlength="200"
+                                    placeholder="Enter topic title"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="topic-category">Category</label>
+                                <select
+                                    id="topic-category"
+                                    name="category"
+                                    required
+                                >
+                                    <option value="">Select a category</option>
+                                    <!-- Categories will be loaded dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="topic-content">Content</label>
+                                <textarea
+                                    id="topic-content"
+                                    name="content"
+                                    required
+                                >
                                 Write your topic content here...
-                            </textarea>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Create Topic</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetTopicForm()">Reset</button>
-                        </div>
-                    </form>
-                </div>
+                            </textarea
+                                >
+                            </div>
 
-                <!-- Add New Category Form -->
-                <div class="admin-card">
-                    <h3>Add New Category</h3>
-                    <form id="category-form">
-                        <div class="form-group">
-                            <label for="category-name">Category Name</label>
-                            <input type="text" id="category-name" name="name" required maxlength="50" 
-                                   placeholder="Enter category name">
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Add Category</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetCategoryForm()">Reset</button>
-                        </div>
-                    </form>
-                    
-                    <!-- Current Categories -->
-                    <div style="margin-top: 2rem;">
-                        <h4 style="margin-bottom: 1rem; color: #34495e;">Current Categories</h4>
-                        <div id="current-categories" class="category-list">
-                            <!-- Current categories will be displayed here -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success">
+                                    Create Topic
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    onclick="resetTopicForm()"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Add New Category Form -->
+                    <div class="admin-card">
+                        <h3>Add New Category</h3>
+                        <form id="category-form">
+                            <div class="form-group">
+                                <label for="category-name">Category Name</label>
+                                <input
+                                    type="text"
+                                    id="category-name"
+                                    name="name"
+                                    required
+                                    maxlength="50"
+                                    placeholder="Enter category name"
+                                />
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success">
+                                    Add Category
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    onclick="resetCategoryForm()"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Current Categories -->
+                        <div style="margin-top: 2rem">
+                            <h4 style="margin-bottom: 1rem; color: #34495e">
+                                Current Categories
+                            </h4>
+                            <div id="current-categories" class="category-list">
+                                <!-- Current categories will be displayed here -->
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </div>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2025 My Blog. Built with vanilla HTML, CSS, JavaScript and Node.js.</p>
+            </section>
         </div>
-    </footer>
 
-    <script src="/main.js"></script>
-    <script>
-        let currentData = { categories: [], topics: [] };
+        <footer class="footer">
+            <div class="footer-content">
+                <p>
+                    &copy; 2025 My Blog. Built with vanilla HTML, CSS,
+                    JavaScript and Node.js.
+                </p>
+            </div>
+        </footer>
 
-        // Initialize admin panel
-        document.addEventListener('DOMContentLoaded', initializeAdminPanel);
+        <script src="/main.js"></script>
+        <script>
+            let currentData = { categories: [], topics: [] };
 
-        async function initializeAdminPanel() {
-            await loadData();
-            setupEventListeners();
-            updateStats();
-            initializeTinyMCE();
-        }
+            // Initialize admin panel
+            document.addEventListener("DOMContentLoaded", initializeAdminPanel);
 
-        function initializeTinyMCE() {
-            tinymce.init({
-                selector: '#topic-content',
-                height: 400,
-                menubar: false,
-                plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
-                ],
-                toolbar: 'undo redo | blocks | ' +
-                    'bold italic forecolor | alignleft aligncenter ' +
-                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                    'removeformat | image link | help',
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                images_upload_handler: function (blobInfo, success, failure) {
-                    // Compress and convert blob to base64
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const img = new Image();
-                    
-                    img.onload = function() {
-                        // Calculate new dimensions (max 800px width)
-                        const maxWidth = 800;
-                        const maxHeight = 600;
-                        let { width, height } = img;
+            async function initializeAdminPanel() {
+                await loadData();
+                setupEventListeners();
+                updateStats();
+                initializeTinyMCE();
+            }
+
+            function initializeTinyMCE() {
+                tinymce.init({
+                    selector: "#topic-content",
+                    height: 400,
+                    menubar: false,
+                    plugins: [
+                        "advlist",
+                        "autolink",
+                        "lists",
+                        "link",
+                        "image",
+                        "charmap",
+                        "preview",
+                        "anchor",
+                        "searchreplace",
+                        "visualblocks",
+                        "code",
+                        "fullscreen",
+                        "insertdatetime",
+                        "media",
+                        "table",
+                        "help",
+                        "wordcount",
+                    ],
+                    toolbar:
+                        "undo redo | blocks | " +
+                        "bold italic forecolor | alignleft aligncenter " +
+                        "alignright alignjustify | bullist numlist outdent indent | " +
+                        "removeformat | image link | help",
+                    content_style:
+                        "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    images_upload_handler: function (
+                        blobInfo,
+                        success,
+                        failure,
+                    ) {
+                        // Create form data for file upload
+                        const formData = new FormData();
+                        formData.append('image', blobInfo.blob(), blobInfo.filename());
                         
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
-                        }
-                        if (height > maxHeight) {
-                            width = (width * maxHeight) / height;
-                            height = maxHeight;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        // Draw and compress
-                        ctx.drawImage(img, 0, 0, width, height);
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-                        success(compressedBase64);
-                    };
-                    
-                    img.onerror = function() {
-                        failure('Image processing failed');
-                    };
-                    
-                    const reader = new FileReader();
-                    reader.onload = function() {
-                        img.src = reader.result;
-                    };
-                    reader.onerror = function() {
-                        failure('Image upload failed');
-                    };
-                    reader.readAsDataURL(blobInfo.blob());
-                },
-                automatic_uploads: false,
-                file_picker_types: 'image',
-                file_picker_callback: function(callback, value, meta) {
-                    if (meta.filetype === 'image') {
-                        const input = document.createElement('input');
-                        input.setAttribute('type', 'file');
-                        input.setAttribute('accept', 'image/*');
-                        
-                        input.onchange = function() {
-                            const file = this.files[0];
-                            
-                            // Compress the image before callback
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const img = new Image();
-                            
-                            img.onload = function() {
-                                // Calculate new dimensions (max 800px width)
-                                const maxWidth = 800;
-                                const maxHeight = 600;
-                                let { width, height } = img;
+                        // Upload to server
+                        fetch('/api/upload-image', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                success(data.imageUrl);
+                            } else {
+                                failure(data.error || 'Upload failed');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Upload error:', error);
+                            failure('Network error during upload');
+                        });
+                    },
+                    automatic_uploads: false,
+                    file_picker_types: "image",
+                    file_picker_callback: function (callback, value, meta) {
+                        if (meta.filetype === "image") {
+                            const input = document.createElement("input");
+                            input.setAttribute("type", "file");
+                            input.setAttribute("accept", "image/*");
+
+                            input.onchange = function () {
+                                const file = this.files[0];
                                 
-                                if (width > maxWidth) {
-                                    height = (height * maxWidth) / width;
-                                    width = maxWidth;
-                                }
-                                if (height > maxHeight) {
-                                    width = (width * maxHeight) / height;
-                                    height = maxHeight;
-                                }
+                                // Upload file to server
+                                const formData = new FormData();
+                                formData.append('image', file);
                                 
-                                canvas.width = width;
-                                canvas.height = height;
-                                
-                                // Draw and compress
-                                ctx.drawImage(img, 0, 0, width, height);
-                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                                
-                                callback(compressedBase64, {
-                                    alt: file.name
+                                fetch('/api/upload-image', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        callback(data.imageUrl, {
+                                            alt: file.name,
+                                        });
+                                    } else {
+                                        alert('Upload failed: ' + (data.error || 'Unknown error'));
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Upload error:', error);
+                                    alert('Network error during upload');
                                 });
                             };
-                            
-                            const reader = new FileReader();
-                            reader.onload = function() {
-                                img.src = reader.result;
-                            };
-                            reader.readAsDataURL(file);
-                        };
-                        
-                        input.click();
+
+                            input.click();
+                        }
+                    },
+                });
+            }
+
+            async function loadData() {
+                try {
+                    const data = await API.get("/api/data");
+                    currentData = data;
+                    updateCategorySelect();
+                    displayCurrentCategories();
+                } catch (error) {
+                    handleError(error, "Failed to load data");
+                }
+            }
+
+            function setupEventListeners() {
+                // Topic form submission
+                document
+                    .getElementById("topic-form")
+                    .addEventListener("submit", handleTopicSubmission);
+
+                // Category form submission
+                document
+                    .getElementById("category-form")
+                    .addEventListener("submit", handleCategorySubmission);
+            }
+
+            async function handleTopicSubmission(event) {
+                event.preventDefault();
+
+                // Get content from TinyMCE editor
+                const content = tinymce.get("topic-content").getContent();
+
+                const formData = new FormData(event.target);
+                const topicData = {
+                    title: formData.get("title").trim(),
+                    content: content.trim(),
+                    category: formData.get("category"),
+                };
+
+                // Client-side validation
+                try {
+                    Validation.required(topicData.title, "Title");
+                    Validation.minLength(topicData.title, 3, "Title");
+                    Validation.maxLength(topicData.title, 200, "Title");
+
+                    Validation.required(topicData.content, "Content");
+                    Validation.minLength(
+                        topicData.content.replace(/<[^>]*>/g, ""),
+                        10,
+                        "Content",
+                    ); // Strip HTML for length check
+
+                    Validation.required(topicData.category, "Category");
+
+                    // Check for overly large content (now much smaller since images are file references)
+                    if (topicData.content.length > 100000) {
+                        // 100KB limit for HTML content
+                        throw new Error(
+                            "Content is too large. Please reduce text content.",
+                        );
                     }
+                } catch (error) {
+                    handleError(error);
+                    return;
                 }
-            });
-        }
 
-        async function loadData() {
-            try {
-                const data = await API.get('/api/data');
-                currentData = data;
-                updateCategorySelect();
-                displayCurrentCategories();
-            } catch (error) {
-                handleError(error, 'Failed to load data');
-            }
-        }
+                const submitBtn = event.target.querySelector(
+                    'button[type="submit"]',
+                );
+                setLoadingState(submitBtn);
 
-        function setupEventListeners() {
-            // Topic form submission
-            document.getElementById('topic-form').addEventListener('submit', handleTopicSubmission);
-            
-            // Category form submission
-            document.getElementById('category-form').addEventListener('submit', handleCategorySubmission);
-        }
-
-        async function handleTopicSubmission(event) {
-            event.preventDefault();
-            
-            // Get content from TinyMCE editor
-            const content = tinymce.get('topic-content').getContent();
-            
-            const formData = new FormData(event.target);
-            const topicData = {
-                title: formData.get('title').trim(),
-                content: content.trim(),
-                category: formData.get('category')
-            };
-
-            // Client-side validation
-            try {
-                Validation.required(topicData.title, 'Title');
-                Validation.minLength(topicData.title, 3, 'Title');
-                Validation.maxLength(topicData.title, 200, 'Title');
-                
-                Validation.required(topicData.content, 'Content');
-                Validation.minLength(topicData.content.replace(/<[^>]*>/g, ''), 10, 'Content'); // Strip HTML for length check
-                
-                Validation.required(topicData.category, 'Category');
-
-                // Check for overly large content (usually due to large images)
-                if (topicData.content.length > 1000000) { // 1MB limit
-                    throw new Error('Content is too large. Please reduce image sizes or use fewer images.');
+                try {
+                    const result = await API.post("/api/topics", topicData);
+                    handleSuccess("Topic created successfully!");
+                    resetTopicForm();
+                    await loadData(); // Reload data to update stats
+                    updateStats();
+                } catch (error) {
+                    handleError(error, "Failed to create topic");
+                } finally {
+                    setLoadingState(submitBtn, false);
                 }
-            } catch (error) {
-                handleError(error);
-                return;
             }
 
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            setLoadingState(submitBtn);
+            async function handleCategorySubmission(event) {
+                event.preventDefault();
 
-            try {
-                const result = await API.post('/api/topics', topicData);
-                handleSuccess('Topic created successfully!');
-                resetTopicForm();
-                await loadData(); // Reload data to update stats
-                updateStats();
-            } catch (error) {
-                handleError(error, 'Failed to create topic');
-            } finally {
-                setLoadingState(submitBtn, false);
-            }
-        }
+                const formData = new FormData(event.target);
+                const categoryData = {
+                    name: formData.get("name").trim(),
+                };
 
-        async function handleCategorySubmission(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(event.target);
-            const categoryData = {
-                name: formData.get('name').trim()
-            };
+                // Client-side validation
+                try {
+                    Validation.required(categoryData.name, "Category name");
+                    Validation.minLength(categoryData.name, 2, "Category name");
+                    Validation.maxLength(
+                        categoryData.name,
+                        50,
+                        "Category name",
+                    );
 
-            // Client-side validation
-            try {
-                Validation.required(categoryData.name, 'Category name');
-                Validation.minLength(categoryData.name, 2, 'Category name');
-                Validation.maxLength(categoryData.name, 50, 'Category name');
-                
-                // Check if category already exists
-                if (currentData.categories.includes(categoryData.name)) {
-                    throw new Error('Category already exists');
+                    // Check if category already exists
+                    if (currentData.categories.includes(categoryData.name)) {
+                        throw new Error("Category already exists");
+                    }
+                } catch (error) {
+                    handleError(error);
+                    return;
                 }
-            } catch (error) {
-                handleError(error);
-                return;
+
+                const submitBtn = event.target.querySelector(
+                    'button[type="submit"]',
+                );
+                setLoadingState(submitBtn);
+
+                try {
+                    const result = await API.post(
+                        "/api/categories",
+                        categoryData,
+                    );
+                    handleSuccess("Category added successfully!");
+                    resetCategoryForm();
+                    await loadData(); // Reload data to update categories
+                    updateStats();
+                } catch (error) {
+                    handleError(error, "Failed to add category");
+                } finally {
+                    setLoadingState(submitBtn, false);
+                }
             }
 
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            setLoadingState(submitBtn);
+            function updateCategorySelect() {
+                const select = document.getElementById("topic-category");
 
-            try {
-                const result = await API.post('/api/categories', categoryData);
-                handleSuccess('Category added successfully!');
-                resetCategoryForm();
-                await loadData(); // Reload data to update categories
-                updateStats();
-            } catch (error) {
-                handleError(error, 'Failed to add category');
-            } finally {
-                setLoadingState(submitBtn, false);
-            }
-        }
+                // Clear existing options except the first one
+                select.innerHTML =
+                    '<option value="">Select a category</option>';
 
-        function updateCategorySelect() {
-            const select = document.getElementById('topic-category');
-            
-            // Clear existing options except the first one
-            select.innerHTML = '<option value="">Select a category</option>';
-            
-            // Add category options
-            currentData.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                select.appendChild(option);
-            });
-        }
-
-        function displayCurrentCategories() {
-            const container = document.getElementById('current-categories');
-            
-            if (currentData.categories.length === 0) {
-                container.innerHTML = '<p class="empty-state">No categories yet.</p>';
-                return;
+                // Add category options
+                currentData.categories.forEach((category) => {
+                    const option = document.createElement("option");
+                    option.value = category;
+                    option.textContent = category;
+                    select.appendChild(option);
+                });
             }
 
-            container.innerHTML = currentData.categories.map(category => `
+            function displayCurrentCategories() {
+                const container = document.getElementById("current-categories");
+
+                if (currentData.categories.length === 0) {
+                    container.innerHTML =
+                        '<p class="empty-state">No categories yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = currentData.categories
+                    .map(
+                        (category) => `
                 <span class="category-tag" style="margin: 0.25rem; display: inline-block;">${category}</span>
-            `).join('');
-        }
+            `,
+                    )
+                    .join("");
+            }
 
-        function updateStats() {
-            const totalTopics = currentData.topics.length;
-            const totalCategories = currentData.categories.length;
-            
-            // Calculate topics from this month
-            const thisMonth = new Date();
-            thisMonth.setDate(1); // First day of current month
-            const recentTopics = currentData.topics.filter(topic => 
-                new Date(topic.createdAt) >= thisMonth
-            ).length;
+            function updateStats() {
+                const totalTopics = currentData.topics.length;
+                const totalCategories = currentData.categories.length;
 
-            document.getElementById('total-topics').textContent = totalTopics;
-            document.getElementById('total-categories').textContent = totalCategories;
-            document.getElementById('recent-topics').textContent = recentTopics;
-        }
+                // Calculate topics from this month
+                const thisMonth = new Date();
+                thisMonth.setDate(1); // First day of current month
+                const recentTopics = currentData.topics.filter(
+                    (topic) => new Date(topic.createdAt) >= thisMonth,
+                ).length;
 
-        function resetTopicForm() {
-            const form = document.getElementById('topic-form');
-            form.reset();
-            // Reset TinyMCE editor
-            tinymce.get('topic-content').setContent('Write your topic content here...');
-        }
+                document.getElementById("total-topics").textContent =
+                    totalTopics;
+                document.getElementById("total-categories").textContent =
+                    totalCategories;
+                document.getElementById("recent-topics").textContent =
+                    recentTopics;
+            }
 
-        function resetCategoryForm() {
-            const form = document.getElementById('category-form');
-            form.reset();
-        }
+            function resetTopicForm() {
+                const form = document.getElementById("topic-form");
+                form.reset();
+                // Reset TinyMCE editor
+                tinymce
+                    .get("topic-content")
+                    .setContent("Write your topic content here...");
+            }
 
-        // Add some additional styles for better UX
-        const additionalStyles = `
+            function resetCategoryForm() {
+                const form = document.getElementById("category-form");
+                form.reset();
+            }
+
+            // Add some additional styles for better UX
+            const additionalStyles = `
             .category-list {
                 min-height: 50px;
                 border: 2px dashed #ddd;
@@ -499,10 +565,10 @@
             }
         `;
 
-        // Inject additional styles
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = additionalStyles;
-        document.head.appendChild(styleSheet);
-    </script>
-</body>
+            // Inject additional styles
+            const styleSheet = document.createElement("style");
+            styleSheet.textContent = additionalStyles;
+            document.head.appendChild(styleSheet);
+        </script>
+    </body>
 </html>

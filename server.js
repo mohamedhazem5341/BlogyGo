@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,12 @@ app.use('/posts', express.static('posts'));
 // Utility function to ensure data files exist
 function ensureDataFiles() {
     const categoriesFile = 'categories.json';
+    const uploadsDir = path.join(__dirname, 'public', 'uploads');
+    
+    // Create uploads directory if it doesn't exist
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
     
     // Create categories.json if it doesn't exist
     if (!fs.existsSync(categoriesFile)) {
@@ -24,6 +31,35 @@ function ensureDataFiles() {
         fs.writeFileSync(categoriesFile, JSON.stringify(initialCategories, null, 2));
     }
 }
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadsDir = path.join(__dirname, 'public', 'uploads');
+        cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+        // Generate unique filename with timestamp
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'img-' + uniqueSuffix + ext);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 30 * 1024 * 1024 // 30MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        // Check if file is an image
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
 
 // Initialize data files on startup
 ensureDataFiles();
@@ -91,9 +127,9 @@ app.post('/api/topics', (req, res) => {
             return res.status(400).json({ error: 'Title, content, and category are required' });
         }
 
-        // Validate content size
-        if (content.length > 5000000) { // 5MB limit
-            return res.status(400).json({ error: 'Content is too large. Please reduce image sizes.' });
+        // Validate content size (much smaller now since images are file references)
+        if (content.length > 200000) { // 200KB limit for HTML content
+            return res.status(400).json({ error: 'Content is too large. Please reduce text content.' });
         }
 
         const data = JSON.parse(fs.readFileSync('categories.json', 'utf8'));
@@ -127,6 +163,27 @@ app.post('/api/topics', (req, res) => {
         } else {
             res.status(500).json({ error: 'Failed to add topic. Please try again.' });
         }
+    }
+});
+
+// API endpoint to upload images
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No image file provided' });
+        }
+
+        // Return the URL path to the uploaded image
+        const imageUrl = `/uploads/${req.file.filename}`;
+        
+        res.json({ 
+            success: true, 
+            imageUrl: imageUrl,
+            message: 'Image uploaded successfully'
+        });
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        res.status(500).json({ error: 'Failed to upload image' });
     }
 });
 
