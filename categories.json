@@ -1,8 +1,18 @@
 {
   "categories": [
     "General",
-    "Technology", 
-    "Lifestyle"
+    "Technology",
+    "Lifestyle",
+    "Anime"
   ],
-  "topics": []
+  "topics": [
+    {
+      "id": "1754907674877",
+      "title": "Solo Leveling",
+      "content": "fsdfsagfarg",
+      "category": "Anime",
+      "createdAt": "2025-08-11T10:21:14.877Z",
+      "slug": "solo-leveling"
+    }
+  ]
 }
