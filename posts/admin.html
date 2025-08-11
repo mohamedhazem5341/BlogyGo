@@ -225,6 +225,21 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Topics Management Card -->
+                    <div class="admin-card">
+                        <h3>Manage Topics</h3>
+                        
+                        <!-- Current Topics -->
+                        <div style="margin-top: 1rem">
+                            <h4 style="margin-bottom: 1rem; color: #34495e">
+                                Current Topics
+                            </h4>
+                            <div id="current-topics" class="topics-list">
+                                <!-- Current topics will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -362,6 +377,7 @@
                     currentData = data;
                     updateCategorySelect();
                     displayCurrentCategories();
+                    displayCurrentTopics();
                 } catch (error) {
                     handleError(error, "Failed to load data");
                 }
@@ -514,7 +530,44 @@
                 container.innerHTML = currentData.categories
                     .map(
                         (category) => `
-                <span class="category-tag" style="margin: 0.25rem; display: inline-block;">${category}</span>
+                <div class="category-item" style="margin: 0.25rem 0; padding: 0.5rem; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <span class="category-tag">${category}</span>
+                    <button class="btn-delete" onclick="confirmDeleteCategory('${category}')" style="background: #e74c3c; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem; cursor: pointer;">Delete</button>
+                </div>
+            `,
+                    )
+                    .join("");
+            }
+
+            function displayCurrentTopics() {
+                const container = document.getElementById("current-topics");
+
+                if (currentData.topics.length === 0) {
+                    container.innerHTML =
+                        '<p class="empty-state">No topics yet.</p>';
+                    return;
+                }
+
+                // Sort topics by creation date (newest first)
+                const sortedTopics = [...currentData.topics].sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+
+                container.innerHTML = sortedTopics
+                    .map(
+                        (topic) => `
+                <div class="topic-item" style="margin: 0.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #3498db;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h5 style="margin: 0 0 0.5rem 0; color: #2c3e50;">${topic.title}</h5>
+                            <div style="display: flex; gap: 1rem; font-size: 0.9rem; color: #7f8c8d;">
+                                <span class="category-tag" style="background: #3498db;">${topic.category}</span>
+                                <span>${new Date(topic.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <button class="btn-delete" onclick="confirmDeleteTopic('${topic.id}', '${topic.title.replace(/'/g, "\\'")}'); " style="background: #e74c3c; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem; cursor: pointer;">Delete</button>
+                    </div>
+                </div>
             `,
                     )
                     .join("");
@@ -553,21 +606,87 @@
                 form.reset();
             }
 
+            // Delete confirmation functions
+            function confirmDeleteCategory(categoryName) {
+                if (confirm(`Are you sure you want to delete the category "${categoryName}"?\n\nThis action cannot be undone. If any topics are using this category, deletion will be prevented.`)) {
+                    deleteCategory(categoryName);
+                }
+            }
+
+            function confirmDeleteTopic(topicId, topicTitle) {
+                if (confirm(`Are you sure you want to delete the topic "${topicTitle}"?\n\nThis action cannot be undone and will permanently remove the topic and all its content.`)) {
+                    deleteTopic(topicId);
+                }
+            }
+
+            // Delete functions
+            async function deleteCategory(categoryName) {
+                try {
+                    const result = await API.delete(`/api/categories/${encodeURIComponent(categoryName)}`);
+                    handleSuccess(result.message);
+                    await loadData(); // Reload data to refresh display
+                    updateStats();
+                } catch (error) {
+                    handleError(error, "Failed to delete category");
+                }
+            }
+
+            async function deleteTopic(topicId) {
+                try {
+                    const result = await API.delete(`/api/topics/${topicId}`);
+                    handleSuccess(result.message);
+                    await loadData(); // Reload data to refresh display
+                    updateStats();
+                } catch (error) {
+                    handleError(error, "Failed to delete topic");
+                }
+            }
+
             // Add some additional styles for better UX
             const additionalStyles = `
-            .category-list {
+            .category-list, .topics-list {
                 min-height: 50px;
                 border: 2px dashed #ddd;
                 padding: 1rem;
                 border-radius: 4px;
                 background-color: #f9f9f9;
+                max-height: 400px;
+                overflow-y: auto;
             }
             
-            .category-list .empty-state {
+            .category-list .empty-state, .topics-list .empty-state {
                 color: #999;
                 font-style: italic;
                 text-align: center;
                 margin: 0;
+            }
+
+            .btn-delete:hover {
+                background: #c0392b !important;
+                transform: scale(1.05);
+                transition: all 0.2s ease;
+            }
+
+            .category-item:hover, .topic-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            @media (max-width: 1200px) {
+                .admin-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .admin-grid {
+                    grid-template-columns: 1fr;
+                }
             }
         `;
 

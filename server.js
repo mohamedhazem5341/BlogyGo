@@ -209,6 +209,68 @@ app.get('/api/topics/:id', (req, res) => {
     }
 });
 
+// API endpoint to delete topic
+app.delete('/api/topics/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = JSON.parse(fs.readFileSync('categories.json', 'utf8'));
+        
+        const topicIndex = data.topics.findIndex(t => t.id === id);
+        
+        if (topicIndex === -1) {
+            return res.status(404).json({ error: 'Topic not found' });
+        }
+        
+        const deletedTopic = data.topics.splice(topicIndex, 1)[0];
+        fs.writeFileSync('categories.json', JSON.stringify(data, null, 2));
+        
+        res.json({ 
+            success: true, 
+            message: 'Topic deleted successfully',
+            deletedTopic: deletedTopic
+        });
+    } catch (error) {
+        console.error('Error deleting topic:', error);
+        res.status(500).json({ error: 'Failed to delete topic' });
+    }
+});
+
+// API endpoint to delete category
+app.delete('/api/categories/:name', (req, res) => {
+    try {
+        const categoryName = decodeURIComponent(req.params.name);
+        const data = JSON.parse(fs.readFileSync('categories.json', 'utf8'));
+        
+        const categoryIndex = data.categories.indexOf(categoryName);
+        
+        if (categoryIndex === -1) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+        
+        // Check if any topics use this category
+        const topicsUsingCategory = data.topics.filter(t => t.category === categoryName);
+        
+        if (topicsUsingCategory.length > 0) {
+            return res.status(400).json({ 
+                error: `Cannot delete category "${categoryName}". ${topicsUsingCategory.length} topic(s) are using this category.`,
+                topicsCount: topicsUsingCategory.length
+            });
+        }
+        
+        data.categories.splice(categoryIndex, 1);
+        fs.writeFileSync('categories.json', JSON.stringify(data, null, 2));
+        
+        res.json({ 
+            success: true, 
+            message: 'Category deleted successfully',
+            deletedCategory: categoryName
+        });
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        res.status(500).json({ error: 'Failed to delete category' });
+    }
+});
+
 // Dynamic topic page route
 app.get('/topic/:id', (req, res) => {
     try {

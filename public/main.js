@@ -125,6 +125,28 @@ const API = {
             console.error('API POST Error:', error);
             throw error;
         }
+    },
+
+    async delete(url) {
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Request failed');
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('API DELETE Error:', error);
+            throw error;
+        }
     }
 };
 
