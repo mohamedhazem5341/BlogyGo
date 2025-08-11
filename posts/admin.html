@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - My Blog</title>
     <link rel="stylesheet" href="/style.css">
+    <!-- TinyMCE CDN -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
         .admin-section {
             margin-bottom: 3rem;
@@ -142,8 +144,9 @@
                         
                         <div class="form-group">
                             <label for="topic-content">Content</label>
-                            <textarea id="topic-content" name="content" required minlength="10" 
-                                      placeholder="Write your topic content here..."></textarea>
+                            <textarea id="topic-content" name="content" required>
+                                Write your topic content here...
+                            </textarea>
                         </div>
                         
                         <div class="form-actions">
@@ -198,6 +201,61 @@
             await loadData();
             setupEventListeners();
             updateStats();
+            initializeTinyMCE();
+        }
+
+        function initializeTinyMCE() {
+            tinymce.init({
+                selector: '#topic-content',
+                height: 400,
+                menubar: false,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | image link | help',
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                images_upload_handler: function (blobInfo, success, failure) {
+                    // Convert blob to base64
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const base64 = reader.result;
+                        success(base64);
+                    };
+                    reader.onerror = function() {
+                        failure('Image upload failed');
+                    };
+                    reader.readAsDataURL(blobInfo.blob());
+                },
+                automatic_uploads: false,
+                file_picker_types: 'image',
+                file_picker_callback: function(callback, value, meta) {
+                    if (meta.filetype === 'image') {
+                        const input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+                        
+                        input.onchange = function() {
+                            const file = this.files[0];
+                            const reader = new FileReader();
+                            
+                            reader.onload = function() {
+                                callback(reader.result, {
+                                    alt: file.name
+                                });
+                            };
+                            
+                            reader.readAsDataURL(file);
+                        };
+                        
+                        input.click();
+                    }
+                }
+            });
         }
 
         async function loadData() {
@@ -222,10 +280,13 @@
         async function handleTopicSubmission(event) {
             event.preventDefault();
             
+            // Get content from TinyMCE editor
+            const content = tinymce.get('topic-content').getContent();
+            
             const formData = new FormData(event.target);
             const topicData = {
                 title: formData.get('title').trim(),
-                content: formData.get('content').trim(),
+                content: content.trim(),
                 category: formData.get('category')
             };
 
@@ -346,6 +407,8 @@
         function resetTopicForm() {
             const form = document.getElementById('topic-form');
             form.reset();
+            // Reset TinyMCE editor
+            tinymce.get('topic-content').setContent('Write your topic content here...');
         }
 
         function resetCategoryForm() {

@@ -207,7 +207,7 @@ app.get('/topic/:id', (req, res) => {
                         </header>
                         
                         <div class="topic-content">
-                            ${topic.content.replace(/\n/g, '<br>')}
+                            ${topic.content}
                         </div>
                         
                         <footer class="topic-footer">

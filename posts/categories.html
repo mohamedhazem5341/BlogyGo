@@ -158,7 +158,7 @@
                         <span class="category-tag">${escapeHtml(topic.category)}</span>
                     </div>
                     <div class="post-excerpt">
-                        ${escapeHtml(topic.content.substring(0, 200))}${topic.content.length > 200 ? '...' : ''}
+                        ${escapeHtml(stripHtmlTags(topic.content).substring(0, 200))}${stripHtmlTags(topic.content).length > 200 ? '...' : ''}
                     </div>
                     <div class="post-meta">
                         <span class="date">${formatDate(topic.createdAt)}</span>
@@ -203,6 +203,13 @@
                 day: 'numeric'
             };
             return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        // Utility function to strip HTML tags for excerpts
+        function stripHtmlTags(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
         }
     </script>
 </body>

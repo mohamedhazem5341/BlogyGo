@@ -112,7 +112,7 @@
                         <span class="category-tag">${topic.category}</span>
                     </div>
                     <div class="post-excerpt">
-                        ${topic.content.substring(0, 150)}${topic.content.length > 150 ? '...' : ''}
+                        ${stripHtmlTags(topic.content).substring(0, 150)}${stripHtmlTags(topic.content).length > 150 ? '...' : ''}
                     </div>
                     <div class="post-meta">
                         <span class="date">${new Date(topic.createdAt).toLocaleDateString()}</span>
@@ -135,6 +135,13 @@
                     <p>Explore ${category.toLowerCase()} topics</p>
                 </a>
             `).join('');
+        }
+
+        // Utility function to strip HTML tags for excerpts
+        function stripHtmlTags(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
         }
     </script>
 </body>
