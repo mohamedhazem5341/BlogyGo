@@ -257,6 +257,9 @@
                     selector: "#topic-content",
                     height: 400,
                     menubar: false,
+                    relative_urls: false,
+                    remove_script_host: false,
+                    document_base_url: window.location.origin + '/',
                     plugins: [
                         "advlist",
                         "autolink",
@@ -300,6 +303,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                console.log('Image uploaded successfully:', data.imageUrl);
                                 success(data.imageUrl);
                             } else {
                                 failure(data.error || 'Upload failed');
@@ -332,6 +336,7 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
+                                        console.log('File picker upload successful:', data.imageUrl);
                                         callback(data.imageUrl, {
                                             alt: file.name,
                                         });
