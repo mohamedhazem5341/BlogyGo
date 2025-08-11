@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - My Blog</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><a href="/">My Blog</a></h1>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/categories" class="active">Categories</a></li>
+                <li><a href="/admin">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="categories-section">
+            <div class="section-header">
+                <h1>Browse Topics by Category</h1>
+                <p>Explore our collection of topics organized by categories. Click on a category to filter topics or view all topics at once.</p>
+            </div>
+
+            <!-- Category Filter Buttons -->
+            <div class="category-buttons" id="category-buttons">
+                <button class="category-btn active" data-category="all">All Topics</button>
+                <!-- Dynamic categories will be loaded here -->
+            </div>
+
+            <!-- Topics Display -->
+            <div class="topics-section">
+                <div id="topics-container" class="posts-grid">
+                    <!-- Topics will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="empty-topics" style="display: none;">
+                    <h3>No topics found</h3>
+                    <p>No topics available for the selected category. <a href="/admin">Create a new topic</a> to get started.</p>
+                </div>
+
+                <div class="loading-state" id="loading-topics" style="display: none;">
+                    <p>Loading topics...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 My Blog. Built with vanilla HTML, CSS, JavaScript and Node.js.</p>
+        </div>
+    </footer>
+
+    <script src="/main.js"></script>
+    <script>
+        let allTopics = [];
+        let allCategories = [];
+        let currentFilter = 'all';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', initializeCategoriesPage);
+
+        async function initializeCategoriesPage() {
+            // Get filter from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const filterParam = urlParams.get('filter');
+            
+            if (filterParam) {
+                currentFilter = filterParam;
+            }
+
+            showLoading();
+            
+            try {
+                const data = await API.get('/api/data');
+                allTopics = data.topics || [];
+                allCategories = data.categories || [];
+                
+                renderCategoryButtons();
+                renderTopics();
+            } catch (error) {
+                handleError(error, 'Failed to load categories and topics');
+                showEmptyState();
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderCategoryButtons() {
+            const container = document.getElementById('category-buttons');
+            
+            // Clear existing buttons except "All Topics"
+            container.innerHTML = `
+                <button class="category-btn ${currentFilter === 'all' ? 'active' : ''}" data-category="all">All Topics</button>
+            `;
+
+            // Add category buttons
+            allCategories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = `category-btn ${currentFilter === category ? 'active' : ''}`;
+                button.setAttribute('data-category', category);
+                button.textContent = category;
+                container.appendChild(button);
+            });
+
+            // Add click event listeners
+            container.addEventListener('click', handleCategoryFilter);
+        }
+
+        function handleCategoryFilter(event) {
+            if (event.target.classList.contains('category-btn')) {
+                const category = event.target.getAttribute('data-category');
+                
+                // Update active button
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Update filter and render topics
+                currentFilter = category;
+                renderTopics();
+                
+                // Update URL without refreshing page
+                const newUrl = category === 'all' ? '/categories' : `/categories?filter=${encodeURIComponent(category)}`;
+                window.history.pushState({}, '', newUrl);
+            }
+        }
+
+        function renderTopics() {
+            const container = document.getElementById('topics-container');
+            let filteredTopics;
+
+            if (currentFilter === 'all') {
+                filteredTopics = allTopics;
+            } else {
+                filteredTopics = allTopics.filter(topic => topic.category === currentFilter);
+            }
+
+            if (filteredTopics.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            hideEmptyState();
+
+            // Sort topics by creation date (newest first)
+            filteredTopics.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            container.innerHTML = filteredTopics.map(topic => `
+                <article class="post-card">
+                    <div class="post-header">
+                        <h3><a href="/topic/${topic.slug || topic.id}">${escapeHtml(topic.title)}</a></h3>
+                        <span class="category-tag">${escapeHtml(topic.category)}</span>
+                    </div>
+                    <div class="post-excerpt">
+                        ${escapeHtml(topic.content.substring(0, 200))}${topic.content.length > 200 ? '...' : ''}
+                    </div>
+                    <div class="post-meta">
+                        <span class="date">${formatDate(topic.createdAt)}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function showLoading() {
+            document.getElementById('loading-topics').style.display = 'block';
+            document.getElementById('topics-container').style.display = 'none';
+            document.getElementById('empty-topics').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-topics').style.display = 'none';
+            document.getElementById('topics-container').style.display = 'grid';
+        }
+
+        function showEmptyState() {
+            document.getElementById('empty-topics').style.display = 'block';
+            document.getElementById('topics-container').style.display = 'none';
+        }
+
+        function hideEmptyState() {
+            document.getElementById('empty-topics').style.display = 'none';
+            document.getElementById('topics-container').style.display = 'grid';
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Format date helper (already in main.js but redefined for clarity)
+        function formatDate(dateString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+    </script>
+</body>
+</html>

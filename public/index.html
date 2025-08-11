@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><a href="/">My Blog</a></h1>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/categories">Categories</a></li>
+                <li><a href="/admin">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome to My Blog</h1>
+                <p>Discover amazing content across various categories. Share your thoughts, explore different topics, and join our community of writers and readers.</p>
+                <a href="/categories" class="btn btn-primary">Explore Categories</a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="about-content">
+                <h2>About This Blog</h2>
+                <p>This is a modern blog platform built with vanilla HTML, CSS, JavaScript, and Node.js. Here you can:</p>
+                <ul class="feature-list">
+                    <li>Browse topics by categories</li>
+                    <li>Read engaging content from various authors</li>
+                    <li>Explore different subjects and interests</li>
+                    <li>Stay updated with the latest posts</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Recent Posts Section -->
+        <section class="recent-posts">
+            <h2>Recent Posts</h2>
+            <div id="recent-posts-container" class="posts-grid">
+                <!-- Recent posts will be loaded here -->
+            </div>
+            <div class="empty-state" id="empty-posts" style="display: none;">
+                <h3>No posts yet</h3>
+                <p>Be the first to create a topic! Visit the <a href="/admin">admin panel</a> to get started.</p>
+            </div>
+        </section>
+
+        <!-- Categories Preview -->
+        <section class="categories-preview">
+            <h2>Browse by Category</h2>
+            <div id="categories-container" class="categories-grid">
+                <!-- Categories will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 My Blog. Built with vanilla HTML, CSS, JavaScript and Node.js.</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // Load home page data
+        document.addEventListener('DOMContentLoaded', loadHomeData);
+
+        async function loadHomeData() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayRecentPosts(data.topics);
+                    displayCategoriesPreview(data.categories);
+                } else {
+                    console.error('Error loading data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('empty-posts').style.display = 'block';
+            }
+        }
+
+        function displayRecentPosts(topics) {
+            const container = document.getElementById('recent-posts-container');
+            const emptyState = document.getElementById('empty-posts');
+
+            if (!topics || topics.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            // Sort by creation date and get the 6 most recent
+            const recentTopics = topics
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 6);
+
+            container.innerHTML = recentTopics.map(topic => `
+                <article class="post-card">
+                    <div class="post-header">
+                        <h3><a href="/topic/${topic.slug || topic.id}">${topic.title}</a></h3>
+                        <span class="category-tag">${topic.category}</span>
+                    </div>
+                    <div class="post-excerpt">
+                        ${topic.content.substring(0, 150)}${topic.content.length > 150 ? '...' : ''}
+                    </div>
+                    <div class="post-meta">
+                        <span class="date">${new Date(topic.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function displayCategoriesPreview(categories) {
+            const container = document.getElementById('categories-container');
+
+            if (!categories || categories.length === 0) {
+                container.innerHTML = '<p>No categories available.</p>';
+                return;
+            }
+
+            container.innerHTML = categories.map(category => `
+                <a href="/categories?filter=${encodeURIComponent(category)}" class="category-card">
+                    <h3>${category}</h3>
+                    <p>Explore ${category.toLowerCase()} topics</p>
+                </a>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
