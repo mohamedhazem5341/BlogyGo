@@ -6,8 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); // Increase limit for base64 images
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static('public'));
 app.use('/posts', express.static('posts'));
 
@@ -91,6 +91,11 @@ app.post('/api/topics', (req, res) => {
             return res.status(400).json({ error: 'Title, content, and category are required' });
         }
 
+        // Validate content size
+        if (content.length > 5000000) { // 5MB limit
+            return res.status(400).json({ error: 'Content is too large. Please reduce image sizes.' });
+        }
+
         const data = JSON.parse(fs.readFileSync('categories.json', 'utf8'));
         
         // Check if category exists
@@ -113,7 +118,15 @@ app.post('/api/topics', (req, res) => {
         res.json({ success: true, message: 'Topic added successfully', topic: newTopic });
     } catch (error) {
         console.error('Error adding topic:', error);
-        res.status(500).json({ error: 'Failed to add topic' });
+        
+        // More specific error handling
+        if (error.message && error.message.includes('JSON')) {
+            res.status(400).json({ error: 'Invalid content format. Please try again without special characters.' });
+        } else if (error.code === 'ENOSPC') {
+            res.status(500).json({ error: 'Not enough storage space. Please reduce content size.' });
+        } else {
+            res.status(500).json({ error: 'Failed to add topic. Please try again.' });
+        }
     }
 });
 

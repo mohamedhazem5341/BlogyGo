@@ -220,11 +220,42 @@
                     'removeformat | image link | help',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                 images_upload_handler: function (blobInfo, success, failure) {
-                    // Convert blob to base64
+                    // Compress and convert blob to base64
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        // Calculate new dimensions (max 800px width)
+                        const maxWidth = 800;
+                        const maxHeight = 600;
+                        let { width, height } = img;
+                        
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                        if (height > maxHeight) {
+                            width = (width * maxHeight) / height;
+                            height = maxHeight;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+                        success(compressedBase64);
+                    };
+                    
+                    img.onerror = function() {
+                        failure('Image processing failed');
+                    };
+                    
                     const reader = new FileReader();
                     reader.onload = function() {
-                        const base64 = reader.result;
-                        success(base64);
+                        img.src = reader.result;
                     };
                     reader.onerror = function() {
                         failure('Image upload failed');
@@ -241,14 +272,43 @@
                         
                         input.onchange = function() {
                             const file = this.files[0];
-                            const reader = new FileReader();
                             
-                            reader.onload = function() {
-                                callback(reader.result, {
+                            // Compress the image before callback
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const img = new Image();
+                            
+                            img.onload = function() {
+                                // Calculate new dimensions (max 800px width)
+                                const maxWidth = 800;
+                                const maxHeight = 600;
+                                let { width, height } = img;
+                                
+                                if (width > maxWidth) {
+                                    height = (height * maxWidth) / width;
+                                    width = maxWidth;
+                                }
+                                if (height > maxHeight) {
+                                    width = (width * maxHeight) / height;
+                                    height = maxHeight;
+                                }
+                                
+                                canvas.width = width;
+                                canvas.height = height;
+                                
+                                // Draw and compress
+                                ctx.drawImage(img, 0, 0, width, height);
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                                
+                                callback(compressedBase64, {
                                     alt: file.name
                                 });
                             };
                             
+                            const reader = new FileReader();
+                            reader.onload = function() {
+                                img.src = reader.result;
+                            };
                             reader.readAsDataURL(file);
                         };
                         
@@ -297,9 +357,14 @@
                 Validation.maxLength(topicData.title, 200, 'Title');
                 
                 Validation.required(topicData.content, 'Content');
-                Validation.minLength(topicData.content, 10, 'Content');
+                Validation.minLength(topicData.content.replace(/<[^>]*>/g, ''), 10, 'Content'); // Strip HTML for length check
                 
                 Validation.required(topicData.category, 'Category');
+
+                // Check for overly large content (usually due to large images)
+                if (topicData.content.length > 1000000) { // 1MB limit
+                    throw new Error('Content is too large. Please reduce image sizes or use fewer images.');
+                }
             } catch (error) {
                 handleError(error);
                 return;
