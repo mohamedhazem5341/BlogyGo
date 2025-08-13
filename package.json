@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "hugo"
+    "build": "npm run build:css && npm run build:js"
   },
   "keywords": [],
   "author": "",
