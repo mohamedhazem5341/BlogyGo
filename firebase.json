@@ -1,12 +1,21 @@
 {
-  "hosting": {
-    "public": "public , posts",
+  "hosting": [{
+    "target": "main",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ]
-  },
+  },{
+    "target": "posts",
+    "public": "posts",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }],
   "emulators": {
     "database": {
       "port": 9000
