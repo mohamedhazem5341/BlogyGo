@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: '100mb' })); // JSON payload limit - change '100mb' to increase
 app.use(express.urlencoded({ extended: true, limit: '100mb' })); // Form data limit - change '100mb' to increase
 app.use(express.static('public'));
-app.use('/posts', express.static('posts'));
+app.use('/posts', express.static('posts')); ////////
 
 // Utility function to ensure data files exist
 function ensureDataFiles() {
@@ -75,12 +75,12 @@ app.get('/', (req, res) => {
 
 // Categories page
 app.get('/categories', (req, res) => {
-    res.sendFile(path.join(__dirname, 'posts', 'categories.html'));
+    res.sendFile(path.join(__dirname, 'public', 'posts', 'categories.html'));
 });
 
 // Admin page
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'posts', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'public', 'posts', 'admin.html'));
 });
 
 // API endpoint to get all categories and topics

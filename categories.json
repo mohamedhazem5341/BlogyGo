@@ -2,32 +2,17 @@
   "categories": [
     "Technology",
     "Lifestyle",
-    "Anime"
+    "Anime",
+    "dada"
   ],
   "topics": [
     {
-      "id": "1754907674877",
-      "title": "Solo Leveling",
-      "content": "fsdfsagfarg",
-      "category": "Anime",
-      "createdAt": "2025-08-11T10:21:14.877Z",
-      "slug": "solo-leveling"
-    },
-    {
-      "id": "1755105091693",
-      "title": "dasd",
-      "content": "<p>Write your topic contednt here...as</p>",
-      "category": "Technology",
-      "createdAt": "2025-08-13T17:11:31.693Z",
-      "slug": "dasd"
-    },
-    {
-      "id": "1755105144879",
-      "title": "dasda",
-      "content": "<p>Write your topic content here.</p>\n<p><img src=\"http://localhost:5000/uploads/img-1755105125348-306674911.jpg\" alt=\"3cb2e-17519168210055-1920.jpg\" width=\"520\" height=\"293\">..</p>",
-      "category": "Anime",
-      "createdAt": "2025-08-13T17:12:24.879Z",
-      "slug": "dasda"
+      "id": "1756010595881",
+      "title": "LOL",
+      "content": "<p>Write your topic content here...<span style=\"color: rgb(53, 152, 219);\"><em><strong>fuck off</strong></em></span></p>",
+      "category": "Lifestyle",
+      "createdAt": "2025-08-24T04:43:15.881Z",
+      "slug": "lol"
     }
   ]
 }

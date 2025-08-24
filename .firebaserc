@@ -1,18 +1,5 @@
 {
   "projects": {
-    "default": "blogygo"
-  },
-  "targets": {
-    "blogygo": {
-      "hosting": {
-        "main": [
-          "your-site-id"
-        ],
-        "posts": [
-          "your-second-site-id"
-        ]
-      }
-    }
-  },
-  "etags": {}
+    "default": "blogy-go"
+  }
 }
